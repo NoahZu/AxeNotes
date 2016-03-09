@@ -19,6 +19,8 @@
     <!-- 写入扩展存储，向扩展卡写入数据，用于写入缓存定位数据 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/axe_icon"
@@ -28,7 +30,7 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="d7e0e7c3caa4fd0d7c31112bd1cb8421">
-            //开发者申请的key</meta-data>
+        </meta-data>
 
         <activity android:name=".activity.MainActivity">
             <intent-filter>

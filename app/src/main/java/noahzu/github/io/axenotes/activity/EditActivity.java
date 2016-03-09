@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -166,6 +163,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(EditActivity.this,AttachmentActivity.class);
+                axeNote.title = titleEdit.getText().toString();
                 intent.putExtra(EDIT_NOTE,axeNote);
                 startActivityForResult(intent,REQUEST_ADD_ATTACHMENT);
             }
@@ -188,7 +186,9 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
         }
         if(requestCode == REQUEST_ADD_ATTACHMENT && resultCode == RESULT_OK && null != data){
             //查看附件完毕，刷新附件数目统计
-
+            AxeNote axeNote = (AxeNote) data.getSerializableExtra(AttachmentActivity.SAVED_AXENOTE);
+            this.axeNote.medias.clear();
+            this.axeNote.medias.addAll(axeNote.medias);
         }
     }
 
