@@ -14,14 +14,14 @@ public class AxeNote implements Serializable{
     public String location;
     public long onlyId;//唯一的id，与数据库的主键不同，删除的时候用它来确认
     public List<AxePicture> pictures;
-    public List<AxeVideo> videos;
+    public List<AxeMedia> medias;
 
     public boolean isSelected;
 
     public AxeNote(long onlyId){
         this.onlyId = onlyId;
         pictures = new ArrayList<>();
-        videos = new ArrayList<>();
+        medias = new ArrayList<>();
     }
 
     public AxeNote(long onlyId,String title, String content, String date, String location) {
@@ -31,9 +31,8 @@ public class AxeNote implements Serializable{
         this.location = location;
         this.onlyId = onlyId;
         pictures = new ArrayList<>();
-        videos = new ArrayList<>();
+        medias = new ArrayList<>();
     }
-
 
     public void updateSelf(AxeNote axeNote){
         title = axeNote.title;
@@ -42,8 +41,7 @@ public class AxeNote implements Serializable{
         location = axeNote.location;
         pictures.clear();
         pictures.addAll(axeNote.pictures);
-       videos = axeNote.videos;
-
+        medias.clear();
+        medias.addAll(axeNote.medias);
     }
-
 }

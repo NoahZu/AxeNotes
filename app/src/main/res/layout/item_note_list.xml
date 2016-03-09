@@ -9,6 +9,8 @@
     android:background="@drawable/note_item_back"
     android:layout_marginBottom="5dp"
     android:layout_marginTop="5dp"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp"
     >
     <LinearLayout
         android:layout_width="wrap_content"
@@ -21,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="测试"
-            android:textSize="20sp"
+            android:textSize="17sp"
             android:layout_marginLeft="10dp"
             />
         <TextView
@@ -30,17 +32,18 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/text_title"
             android:text="上午8:00"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="3dp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingRight="30dp"
-        android:layout_alignParentRight="true">
+        android:paddingRight="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true">
         <TextView
             android:id="@+id/text_pic_num"
             android:layout_width="wrap_content"
@@ -60,5 +63,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/video_icon"/>
+        <TextView
+            android:id="@+id/text_voice_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="6"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/voice_icon"/>
     </LinearLayout>
 </RelativeLayout>

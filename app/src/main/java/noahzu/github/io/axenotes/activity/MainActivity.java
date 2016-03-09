@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -16,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import noahzu.github.io.axenotes.R;
 import noahzu.github.io.axenotes.adapter.AxeAdapter;
 import noahzu.github.io.axenotes.db.AxeDbHelper;
 import noahzu.github.io.axenotes.entity.AxeNote;
-import noahzu.github.io.axenotes.utils.TimeUtils;
 import noahzu.github.io.axenotes.widget.RecycleViewDivider;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener,AxeAdapter.OnAxeItemLongClickListener,AxeAdapter.OnAxeItemClickListener {

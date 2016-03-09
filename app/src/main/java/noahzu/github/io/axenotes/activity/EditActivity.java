@@ -48,6 +48,9 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
     public static final String ADD_NOTE = "ADD_NOTE";
     private static final int RESULT_LOAD_IMAGE = 3;
     private static final String IMAGE_HOLDER = "axeImg";
+    public static final String CURRENT_NOTE = "current_note";
+    private static final int REQUEST_ADD_ATTACHMENT = 4;
+    public static final String EDIT_NOTE = "edit_note";
 
     private Toolbar toolbar;
     private AxeEditText contentEdit;
@@ -59,7 +62,6 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
 
     private Menu menu;
     private AxeNote axeNote;
-    private List<AxePicture> pictures;
 
     private int mainAIntent;
 
@@ -153,23 +155,6 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
         toolbar = (Toolbar) findViewById(R.id.edit_toolbar);
         contentEdit = (AxeEditText) findViewById(R.id.edit_note_content);
 
-        contentEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
         addButton = (FloatingActionButton) findViewById(R.id.fb_add);
         setSupportActionBar(toolbar);//将Toolbar的对象设置进去替换actionBar
 
@@ -180,8 +165,9 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                Intent intent = new Intent(EditActivity.this,AttachmentActivity.class);
+                intent.putExtra(EDIT_NOTE,axeNote);
+                startActivityForResult(intent,REQUEST_ADD_ATTACHMENT);
             }
         });
     }
@@ -200,6 +186,10 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
             Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
             contentEdit.insertBitmap(bitmap, picturePath);
         }
+        if(requestCode == REQUEST_ADD_ATTACHMENT && resultCode == RESULT_OK && null != data){
+            //查看附件完毕，刷新附件数目统计
+
+        }
     }
 
     @Override
@@ -217,6 +207,10 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
                 break;
             case R.id.action_share:
                 // TODO: 2016/3/8 分享
+                break;
+            case R.id.action_add_pic:
+                Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
                 break;
         }
         return true;
@@ -267,7 +261,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
                 City city = new City(amapLocation);
                 setLocation(city);
             } else {
-                Toast.makeText(this,"定位失败，请打开gps、wifi、gprs中的任意一个重新定位",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"定位失败，请打开gps、wifi、gprs中的任意一个重新定位",Toast.LENGTH_SHORT).show();
 
             }
         }

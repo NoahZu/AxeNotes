@@ -47,13 +47,18 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      */
     public void addAxeNote(AxeNote axeNote){
         // TODO: 2016/3/7 加入图片和视频以后要把后边的字段实现
-        StringBuffer sbPath = new StringBuffer();
-        for(AxePicture axePicture : axeNote.pictures){
-            sbPath.append(axePicture.path+";");
+        if(axeNote.pictures.size() > 0){
+            StringBuffer sbPath = new StringBuffer();
+            for(AxePicture axePicture : axeNote.pictures){
+                sbPath.append(axePicture.path+";");
+            }
+            sbPath.deleteCharAt(sbPath.length()-1);
+            String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"','"+sbPath.toString()+"',null,null)";
+            getWritableDatabase().execSQL(sql);
+        }else{
+            String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"',null,null,null)";
+            getWritableDatabase().execSQL(sql);
         }
-        sbPath.deleteCharAt(sbPath.length()-1);
-        String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"','"+sbPath.toString()+"',null,null)";
-        getWritableDatabase().execSQL(sql);
     }
 
     /**
@@ -113,12 +118,18 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      * @param axeNote
      */
     public void updateAxeNote(AxeNote axeNote){
-        StringBuffer sbPath = new StringBuffer();
-        for(AxePicture axePicture : axeNote.pictures){
-            sbPath.append(axePicture.path+";");
+        if(axeNote.pictures.size() > 0){
+            StringBuffer sbPath = new StringBuffer();
+            for(AxePicture axePicture : axeNote.pictures){
+                sbPath.append(axePicture.path+";");
+            }
+            sbPath.deleteCharAt(sbPath.length()-1);
+            String sql = "update axe_table set title='"+axeNote.title+"' ,content='"+axeNote.content+"',location='"+axeNote.location+"',pic_path = '"+sbPath.toString()+"' where only_id = "+axeNote.onlyId+";";
+            getWritableDatabase().execSQL(sql);
+        }else{
+            String sql = "update axe_table set title='"+axeNote.title+"' ,content='"+axeNote.content+"',location='"+axeNote.location+"',pic_path = null where only_id = "+axeNote.onlyId+";";
+            getWritableDatabase().execSQL(sql);
         }
-        String sql = "update axe_table set title='"+axeNote.title+"' ,content='"+axeNote.content+"',location='"+axeNote.location+"',pic_path = '"+sbPath.toString()+"' where only_id = "+axeNote.onlyId+";";
-        getWritableDatabase().execSQL(sql);
     }
 
     /**

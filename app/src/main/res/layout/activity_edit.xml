@@ -47,8 +47,10 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@drawable/note_edit_back"
-            android:layout_margin="5dp"
-            android:padding="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:padding="7dp"
             android:hint="请在此输入标题"/>
         <noahzu.github.io.axenotes.widget.AxeEditText
             android:id="@+id/edit_note_content"
@@ -59,8 +61,11 @@
             android:layout_below="@id/edit_toolbar"
             android:layout_above="@id/edit_note_date"
             android:background="@drawable/note_edit_back"
-            android:layout_margin="5dp"
-            android:padding="10dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+            android:padding="7dp"
             android:hint="开启书写之旅吧！"
             />
     </LinearLayout>
@@ -70,7 +75,7 @@
         android:layout_height="wrap_content"
         app:borderWidth="0dp"
         app:backgroundTint="#3b9eff"
-        android:src="@mipmap/note_add"
+        android:src="@mipmap/icon_attac"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="50dp"

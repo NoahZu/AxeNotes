@@ -7,8 +7,6 @@
     never：不显示在界面上，只让出现在右边的三个点中
     ifRoom：如果有位置才显示，不然就出现在右边的三个点中
     collapseActionView:占用尽量少的位置-->
-
-
     <item
         android:id="@+id/action_location"
         android:orderInCategory="100"
@@ -24,11 +22,18 @@
         app:showAsAction="always"
         />
     <item
+        android:id="@+id/action_add_pic"
+        android:orderInCategory="100"
+        android:icon="@mipmap/note_add"
+        android:title="插入图片"
+        app:showAsAction="always"
+        />
+    <item
         android:id="@+id/action_share"
         android:orderInCategory="100"
         android:icon="@mipmap/share"
         android:title="分享"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         />
 
 </menu>
