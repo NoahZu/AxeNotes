@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <!-- app:showAsAction
+    always：总是显示在界面上
+    never：不显示在界面上，只让出现在右边的三个点中
+    ifRoom：如果有位置才显示，不然就出现在右边的三个点中
+    collapseActionView:占用尽量少的位置-->
+
+    <item
+        android:id="@+id/action_edit"
+        android:orderInCategory="100"
+        android:icon="@mipmap/note_edit"
+        android:title="编辑"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/action_add"
+        android:orderInCategory="100"
+        android:icon="@mipmap/note_add"
+        android:title="添加"
+        app:showAsAction="always"
+        />
+
+
+    <!-- app:actionViewClass="android.support.v7.widget.SearchView
+        设置过后，点击此按钮可以在Toolbar上形成一个搜索框-->
+    <!--showAsAction 中有 collapseActionView时，后面的三个点不会消失 -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@mipmap/search"
+        android:title="Search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always" />
+</menu>

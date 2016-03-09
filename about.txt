@@ -1,0 +1,20 @@
+所有者: CN=Noah, OU=github, ST=jiangsu
+发布者: CN=Noah, OU=github, ST=jiangsu
+序列号: 5dcc97dc
+有效期开始日期: Tue Mar 08 10:24:58 CST 2016, 截止日期: Sat Mar 02 10:24:58 CST 2041
+证书指纹:
+         MD5: D6:00:39:A7:1D:81:C0:A9:55:1A:96:41:5B:BF:90:7B
+         SHA1: F2:1C:97:76:F3:3C:95:89:C7:68:71:51:9C:9E:0C:F0:26:75:9F:46
+         SHA256: 1E:CB:F7:D2:EE:0F:15:4D:17:37:E5:7A:F4:16:C0:C1:CF:B6:DA:D2:85:26:76:FA:0A:25:4F:70:65:6D:EF:D8
+         签名算法名称: SHA256withRSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: D0 93 8A 2F D8 BC 6B A2   BF 93 D7 14 C3 67 CF D3  .../..k......g..
+0010: E9 5D 65 86                                        .]e.
+]
+]
