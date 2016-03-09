@@ -125,16 +125,27 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
     private void setContentText() {
         SpannableStringBuilder builder = new SpannableStringBuilder(axeNote.content);
         String flag = IMAGE_HOLDER;
-        Pattern pattern = Pattern.compile(flag);
-        Matcher matcher = pattern.matcher(axeNote.content);
+        Pattern pattern = Pattern.compile("/storage/emulated/.+?\\.\\w{3}");
+        Matcher matcher =  pattern.matcher(axeNote.content);
+        while (matcher.find())
+        {
+            Bitmap bitmap =  BitmapFactory.decodeFile(matcher.group());
+            builder.setSpan(new ImageSpan(bitmap), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        contentEdit.setText(builder);
+    }
+
+    private List<AxePicture> getBitmapsFromString(String str){
+        List<AxePicture> pictures = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("/storage/emulated/.+?\\.\\w{3}");
+        Matcher matcher =  pattern.matcher(str);
         int i = 0;
         while (matcher.find())
         {
-            Bitmap bitmap =  BitmapFactory.decodeFile(axeNote.pictures.get(i).path);
-            builder.setSpan(new ImageSpan(bitmap), matcher.start(), matcher.end(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            i++;
+            pictures.add(new AxePicture(matcher.group()));
         }
-        contentEdit.setText(builder);
+        return pictures;
     }
 
 
@@ -187,10 +198,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
             Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-            contentEdit.append("\n");
-            contentEdit.insertBitmap(bitmap, IMAGE_HOLDER);//在图片前后各自加一个换行
-            contentEdit.append("\n");
-            axeNote.pictures.add(new AxePicture(picturePath));
+            contentEdit.insertBitmap(bitmap, picturePath);
         }
     }
 
@@ -220,11 +228,14 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
         String title = titleEdit.getText().toString();
         String location = locationText.getText().toString();
         Intent intent = new Intent();
+        List<AxePicture> pictures = getBitmapsFromString(contentEdit.getText().toString());
         if(mainAIntent == MainActivity.UPDATE_NOTE){
             axeNote.title = title;
             axeNote.content = content;
             axeNote.location = location;
             axeNote.date =date;
+            axeNote.pictures.clear();
+            axeNote.pictures.addAll(pictures);
             intent.putExtra(UPDATE_NOTE, axeNote);
             setResult(UPDATE_OK, intent);
         }
@@ -233,6 +244,8 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
             axeNote.content = content;
             axeNote.date = date;
             axeNote.location = location;
+            axeNote.pictures.clear();
+            axeNote.pictures.addAll(pictures);
             intent.putExtra(ADD_NOTE, axeNote);
             setResult(ADD_OK,intent);
         }
