@@ -94,25 +94,15 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
 
     private void initLocation() {
         mLocationClient = new AMapLocationClient(getApplicationContext());
-        //设置定位回调监听
         mLocationClient.setLocationListener(this);
-        //声明mLocationOption对象
         AMapLocationClientOption mLocationOption = null;
-        //初始化定位参数
         mLocationOption = new AMapLocationClientOption();
-        //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //设置是否返回地址信息（默认返回地址信息）
          mLocationOption.setNeedAddress(true);
-        //设置是否只定位一次,默认为false
          mLocationOption.setOnceLocation(false);
-        //设置是否强制刷新WIFI，默认为强制刷新
          mLocationOption.setWifiActiveScan(false);
-        //设置是否允许模拟位置,默认为false，不允许模拟位置
          mLocationOption.setMockEnable(false);
-        //设置定位间隔,单位毫秒,默认为2000ms
          mLocationOption.setInterval(2000);
-        //给定位客户端对象设置定位参数
           mLocationClient.setLocationOption(mLocationOption);
     }
 
@@ -126,7 +116,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
             long onlyId = TimeUtils.getOnlyIdByDate();
             axeNote = new AxeNote(onlyId);
         }
-        String date = StringUtils.formatDate(new Date());
+        String date = StringUtils.formatDateTime(new Date());
         dateText.setText(date);
     }
 
