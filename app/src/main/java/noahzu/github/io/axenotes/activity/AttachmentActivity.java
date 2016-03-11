@@ -1,6 +1,8 @@
 package noahzu.github.io.axenotes.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -15,16 +17,22 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import noahzu.github.io.axenotes.R;
 import noahzu.github.io.axenotes.adapter.AttachmentAdapter;
 import noahzu.github.io.axenotes.entity.AxeMedia;
 import noahzu.github.io.axenotes.entity.AxeNote;
+import noahzu.github.io.axenotes.utils.StringUtils;
 import noahzu.github.io.axenotes.widget.RecycleViewDivider;
 
 public class AttachmentActivity extends AppCompatActivity {
@@ -34,6 +42,7 @@ public class AttachmentActivity extends AppCompatActivity {
     private static final int REQUEST_VOICE_CAPTURE = 2;
     private static final int SAVE_ATTACH = 3;
     public static final String SAVED_AXENOTE = "saved_axenote";
+    public static final String PLAY_VIDEO = "play_video";
     private AxeNote axeNote;
 
     private RecyclerView recyclerView;
@@ -51,11 +60,48 @@ public class AttachmentActivity extends AppCompatActivity {
     private void initView() {
         recyclerView = (RecyclerView) findViewById(R.id.attachment_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new RecycleViewDivider(this,LinearLayoutManager.HORIZONTAL));
+        recyclerView.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.HORIZONTAL));
         toolbar = (Toolbar) findViewById(R.id.attachment__toolbar);
         toolbar.setTitle(axeNote.title + "的附件");
         setSupportActionBar(toolbar);
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new AttachmentAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Intent intent = new Intent(AttachmentActivity.this, PlayVideoActivity.class);
+                AxeMedia media = axeNote.medias.get(position);
+                if (media.getType() == AxeMedia.TYPE_VIDEO) {
+                    intent.putExtra(PLAY_VIDEO, media);
+                    startActivity(intent);
+                } else {
+                    playSound(media);
+                }
+            }
+        });
+    }
+
+    private void playSound(AxeMedia media) {
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(this,Uri.parse(media.path));
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    Toast.makeText(AttachmentActivity.this, "播放开始", Toast.LENGTH_SHORT).show();
+                    mp.start();
+                }
+            });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    Toast.makeText(AttachmentActivity.this, "播放结束", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void loadAxeNote() {
@@ -70,7 +116,6 @@ public class AttachmentActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_add_attachment:
-                //TODO: 2016/3/9 询问添加什么样的附件 视频 or 语音
                 showPopupMenu();
                 break;
         }
@@ -85,11 +130,9 @@ public class AttachmentActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_add_video:
-                        // TODO: 2016/3/9 跳转到添加video
                         captureVideo();
                         break;
                     case R.id.action_add_voice:
-                        //// TODO: 2016/3/9 跳转到添加语音
                         captureVoice();
                         break;
                 }
@@ -101,13 +144,13 @@ public class AttachmentActivity extends AppCompatActivity {
     }
 
     private void captureVoice() {
-        Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-
-        startActivityForResult(intent,REQUEST_VOICE_CAPTURE);
+       Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+       startActivityForResult(intent,REQUEST_VOICE_CAPTURE);
     }
 
     private void captureVideo() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
         }
@@ -117,14 +160,18 @@ public class AttachmentActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             Uri videoUri = intent.getData();
-            String path = videoUri.getPath();
-            axeNote.medias.add(new AxeMedia(AxeMedia.TYPE_VIDEO,path));
+            String path = videoUri.toString();
+            String title = StringUtils.formatDate(new Date());
+            AxeMedia axeMedia = new AxeMedia(AxeMedia.TYPE_VIDEO,title,path);
+            axeNote.medias.add(axeMedia);
             adapter.notifyDataSetChanged();
         }
         if(requestCode == REQUEST_VOICE_CAPTURE && resultCode == RESULT_OK){
             Uri uri = intent.getData();
-            String path = uri.getPath();
-            axeNote.medias.add(new AxeMedia(AxeMedia.TYPE_VOICE,path));
+            String path = uri.toString();
+            String title = StringUtils.formatDate(new Date());
+            AxeMedia axeMedia = new AxeMedia(AxeMedia.TYPE_VOICE,title,path);
+            axeNote.medias.add(axeMedia);
             adapter.notifyDataSetChanged();
         }
     }
@@ -138,7 +185,6 @@ public class AttachmentActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            // TODO: 2016/3/9 如果点击了返回按钮，就将附件保存
             Intent intent = new Intent();
             intent.putExtra(SAVED_AXENOTE,axeNote);
             setResult(RESULT_OK, intent);

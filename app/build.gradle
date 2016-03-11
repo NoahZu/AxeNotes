@@ -27,4 +27,20 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile files('libs/AMap_Location_v2.3.0_20160112.jar')
     testCompile 'junit:junit:4.12'
+    compile files('libs/MobCommons-2016.0301.1053.jar')
+    compile files('libs/MobTools-2016.0301.1053.jar')
+    compile files('libs/ShareSDK-Alipay-2.7.0.jar')
+    compile files('libs/ShareSDK-Core-2.7.0.jar')
+    compile files('libs/ShareSDK-Douban-2.7.0.jar')
+    compile files('libs/ShareSDK-Email-2.7.0.jar')
+    compile files('libs/ShareSDK-Evernote-2.7.0.jar')
+    compile files('libs/ShareSDK-QQ-2.7.0.jar')
+    compile files('libs/ShareSDK-QZone-2.7.0.jar')
+    compile files('libs/ShareSDK-ShortMessage-2.7.0.jar')
+    compile files('libs/ShareSDK-SinaWeibo-2.7.0.jar')
+    compile files('libs/ShareSDK-TencentWeibo-2.7.0.jar')
+    compile files('libs/ShareSDK-Wechat-2.7.0.jar')
+    compile files('libs/ShareSDK-Wechat-Core-2.7.0.jar')
+    compile files('libs/ShareSDK-Wechat-Favorite-2.7.0.jar')
+    compile files('libs/ShareSDK-Wechat-Moments-2.7.0.jar')
 }

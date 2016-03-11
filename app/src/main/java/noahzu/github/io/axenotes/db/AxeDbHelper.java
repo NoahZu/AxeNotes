@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import noahzu.github.io.axenotes.entity.AxeMedia;
 import noahzu.github.io.axenotes.entity.AxeNote;
 import noahzu.github.io.axenotes.entity.AxePicture;
 
@@ -18,17 +19,24 @@ public class AxeDbHelper extends SQLiteOpenHelper{
     private static AxeDbHelper axeDbHelper;
     private static final String DB_NAME = "axe_note.db";
 
-    private static final String CREATE_TABLE_SQL = "create table axe_table (" +
+    private static final String CREATE_NOTE_TABLE_SQL = "create table axe_table (" +
             "_id integer primary key autoincrement ," +
             "only_id long not null,"+
             "title varchar(128)," +
             "content text," +
             "date varchar(128)," +
-            "location varchar(512)," +
-            "pic_path varchar(512)," +
-            "video_path varchar(512)," +
-            "video_pic_path varchar(512)" +
+            "location varchar(512)" +
             ");";
+
+    private static final String CREATE_PICTURE_TABLE_SQL = "create table axe_picture(" +
+            "only_id long not null," +
+            "path varchar(128));";
+    //type 1:video 2:voice
+    private static final String CREATE_MEDIA_TABLE_SQL = "create table axe_media (" +
+            "only_id long not null," +
+            "type integer not null,"+
+            "title varchar(128)," +
+            "path varchar(128));";
 
     public static AxeDbHelper getInstance(Context context){
         if(axeDbHelper == null){
@@ -46,18 +54,18 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      * @param axeNote
      */
     public void addAxeNote(AxeNote axeNote){
-        // TODO: 2016/3/7 加入图片和视频以后要把后边的字段实现
-        if(axeNote.pictures.size() > 0){
-            StringBuffer sbPath = new StringBuffer();
-            for(AxePicture axePicture : axeNote.pictures){
-                sbPath.append(axePicture.path+";");
-            }
-            sbPath.deleteCharAt(sbPath.length()-1);
-            String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"','"+sbPath.toString()+"',null,null)";
-            getWritableDatabase().execSQL(sql);
-        }else{
-            String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"',null,null,null)";
-            getWritableDatabase().execSQL(sql);
+        String sql = "insert into axe_table values(null,"+axeNote.onlyId+",'"+axeNote.title+"','"+axeNote.content+"','"+axeNote.date+"','"+axeNote.location+"');";
+        getWritableDatabase().execSQL(sql);
+        //插入图片
+        String pictureSql;
+        for(int i = 0;i < axeNote.pictures.size();i++){
+            pictureSql = "insert into axe_picture values("+axeNote.onlyId+",'"+axeNote.pictures.get(i).path+"');";
+            getWritableDatabase().execSQL(pictureSql);
+        }
+        String mediaSql;
+        for(int j = 0;j<axeNote.medias.size();j++){
+            mediaSql = "insert into axe_media values("+axeNote.onlyId+","+axeNote.medias.get(j).type+",'"+axeNote.medias.get(j).title+"','"+axeNote.medias.get(j).path+"');";
+            getWritableDatabase().execSQL(mediaSql);
         }
     }
 
@@ -66,15 +74,26 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      * @return
      */
     public List<AxeNote> getAllAxeNote(){
-        String sql = "select * from axe_table";
+        String sql = "select * from axe_table;";
+        Cursor cursor = getWritableDatabase().rawQuery(sql, new String[]{});
         List<AxeNote> axeNotes = new ArrayList<>();
-        Cursor cursor = getWritableDatabase().rawQuery(sql,new String[]{});
-
         while (cursor.moveToNext()){
-            AxeNote axeNote = new AxeNote(cursor.getLong(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5));
-            String[] paths = cursor.getString(6).split(";");
-            for(int i = 0;i<paths.length;i++){
-                axeNote.pictures.add(new AxePicture(paths[i]));
+            AxeNote axeNote = new AxeNote(
+                    cursor.getLong(cursor.getColumnIndex("only_id")),
+                    cursor.getString(cursor.getColumnIndex("title")),
+                    cursor.getString(cursor.getColumnIndex("content")),
+                    cursor.getString(cursor.getColumnIndex("date")),
+                    cursor.getString(cursor.getColumnIndex("location"))
+            );
+            String pictureSql = "select * from axe_picture where only_id = "+axeNote.onlyId+";";
+            Cursor picCursor = getWritableDatabase().rawQuery(pictureSql, new String[]{});
+            while(picCursor.moveToNext()){
+                axeNote.pictures.add(new AxePicture(cursor.getString(1)));
+            }
+            String mediaSql = "select * from axe_media where only_id = "+axeNote.onlyId+";";
+            Cursor mediaCursor = getWritableDatabase().rawQuery(mediaSql,new String[]{});
+            while (mediaCursor.moveToNext()){
+                axeNote.medias.add(new AxeMedia(mediaCursor.getInt(1),mediaCursor.getString(2),mediaCursor.getString(3)));
             }
             axeNotes.add(axeNote);
         }
@@ -87,14 +106,13 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      * @return
      */
     public boolean deleteAxeNote(AxeNote deletedAxeNote){
-        try {
-            String sql = "delete from axe_table where only_id="+deletedAxeNote.onlyId+";";
-            getWritableDatabase().execSQL(sql);
+            String delTableSql = "delete from axe_table where only_id = "+deletedAxeNote.onlyId+";";
+            String delPicSql = "delete from axe_picture where only_id = "+deletedAxeNote.onlyId+";";
+            String delMediaSql = "delete from axe_media where only_id = "+deletedAxeNote.onlyId+";";
+            getWritableDatabase().execSQL(delTableSql);
+            getWritableDatabase().execSQL(delPicSql);
+            getWritableDatabase().execSQL(delMediaSql);
             return true;
-        }
-        catch (Exception e){
-            return false;
-        }
     }
 
     /**
@@ -118,18 +136,8 @@ public class AxeDbHelper extends SQLiteOpenHelper{
      * @param axeNote
      */
     public void updateAxeNote(AxeNote axeNote){
-        if(axeNote.pictures.size() > 0){
-            StringBuffer sbPath = new StringBuffer();
-            for(AxePicture axePicture : axeNote.pictures){
-                sbPath.append(axePicture.path+";");
-            }
-            sbPath.deleteCharAt(sbPath.length()-1);
-            String sql = "update axe_table set title='"+axeNote.title+"' ,content='"+axeNote.content+"',location='"+axeNote.location+"',pic_path = '"+sbPath.toString()+"' where only_id = "+axeNote.onlyId+";";
-            getWritableDatabase().execSQL(sql);
-        }else{
-            String sql = "update axe_table set title='"+axeNote.title+"' ,content='"+axeNote.content+"',location='"+axeNote.location+"',pic_path = null where only_id = "+axeNote.onlyId+";";
-            getWritableDatabase().execSQL(sql);
-        }
+        deleteAxeNote(axeNote);
+        addAxeNote(axeNote);
     }
 
     /**
@@ -155,11 +163,13 @@ public class AxeDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_SQL);
+        db.execSQL(CREATE_NOTE_TABLE_SQL);
+        db.execSQL(CREATE_PICTURE_TABLE_SQL);
+        db.execSQL(CREATE_MEDIA_TABLE_SQL);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        // TODO: 2016/3/10 what ?
     }
 }

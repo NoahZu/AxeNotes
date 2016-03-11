@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -25,16 +26,24 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.sharesdk.framework.ShareSDK;
+import noahzu.github.io.axenotes.OnekeyShare;
 import noahzu.github.io.axenotes.R;
 import noahzu.github.io.axenotes.entity.AxeNote;
 import noahzu.github.io.axenotes.entity.AxePicture;
 import noahzu.github.io.axenotes.entity.City;
+import noahzu.github.io.axenotes.utils.BitmapUtil;
+import noahzu.github.io.axenotes.utils.DeviceUtil;
 import noahzu.github.io.axenotes.utils.StringUtils;
 import noahzu.github.io.axenotes.utils.TimeUtils;
 import noahzu.github.io.axenotes.widget.AxeEditText;
@@ -123,8 +132,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
 
     private void setContentText() {
         SpannableStringBuilder builder = new SpannableStringBuilder(axeNote.content);
-        String flag = IMAGE_HOLDER;
-        Pattern pattern = Pattern.compile("/storage/emulated/.+?\\.\\w{3}");
+        Pattern pattern = Pattern.compile("/storage/*/.+?\\.\\w{3}");
         Matcher matcher =  pattern.matcher(axeNote.content);
         while (matcher.find())
         {
@@ -137,7 +145,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
     private List<AxePicture> getBitmapsFromString(String str){
         List<AxePicture> pictures = new ArrayList<>();
 
-        Pattern pattern = Pattern.compile("/storage/emulated/.+?\\.\\w{3}");
+        Pattern pattern = Pattern.compile("/storage/*/.+?\\.\\w{3}");
         Matcher matcher =  pattern.matcher(str);
         int i = 0;
         while (matcher.find())
@@ -174,15 +182,31 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
+            String picturePath = getBitmapPath(data);
+            File file = new File(Environment.getExternalStorageDirectory(),"axeNotes");
+            if(!file.exists()){
+                file.mkdir();
+            }
             Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-            contentEdit.insertBitmap(bitmap, picturePath);
+            int screenWidth = DeviceUtil.getScreenInfo(this).x;
+            if(bitmap.getWidth() > screenWidth){
+               bitmap = BitmapUtil.scaleImage(bitmap, screenWidth,((int)(((float)screenWidth)/((float)bitmap.getWidth())*bitmap.getHeight())));
+            }
+            File bitmapFile = new File(file,StringUtils.formatDate(new Date(),"MMddhhmmss")+".png");
+            try {
+                if(bitmapFile == null || !bitmapFile.exists()){
+                    bitmapFile.createNewFile();
+                }
+                FileOutputStream fileOutputStream = new FileOutputStream(bitmapFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG,90,fileOutputStream);
+            }catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            contentEdit.append("\n");
+            contentEdit.insertBitmap(bitmap, bitmapFile.getAbsolutePath());
         }
         if(requestCode == REQUEST_ADD_ATTACHMENT && resultCode == RESULT_OK && null != data){
             //查看附件完毕，刷新附件数目统计
@@ -192,12 +216,27 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
         }
     }
 
+    private String getBitmapPath(Intent data) {
+        Uri selectedImage = data.getData();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnIndex);
+        cursor.close();
+        return picturePath;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_save:
                 //将note传回MainActivity，有MainActivity负责存储的逻辑
-                sendBack();
+                if(titleEdit.getText().toString().equals("") || contentEdit.getText().toString().equals("")){
+                    Toast.makeText(this,"标题和内容不能为空",Toast.LENGTH_SHORT).show();
+                }else{
+                    sendBack();
+                }
                 break;
             case R.id.action_location:
                 //用户点击了定位按钮,将定位按钮切换成正在定位的图标
@@ -207,6 +246,7 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
                 break;
             case R.id.action_share:
                 // TODO: 2016/3/8 分享
+                showShare();
                 break;
             case R.id.action_add_pic:
                 Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -214,6 +254,29 @@ public class EditActivity extends AppCompatActivity implements AMapLocationListe
                 break;
         }
         return true;
+    }
+
+    private void showShare(){
+        ShareSDK.initSDK(this);
+        OnekeyShare oks = new OnekeyShare();
+
+
+        oks.setText("hi 我在斧子便签写了一段文字，分享给大家:\n" + getPureText(contentEdit.getText().toString()));
+        List<AxePicture> pic = getBitmapsFromString(contentEdit.getText().toString());
+        if(pic != null && pic.size() > 0){
+            oks.setImagePath(pic.get(0).path);
+        }
+        oks.show(this);
+    }
+
+    private String getPureText(String text) {
+        List<AxePicture> pictures = getBitmapsFromString(text);
+        if(pictures != null){
+            for(int i = 0;i<pictures.size();i++){
+                text = text.replace(pictures.get(i).path,"[图片]");
+            }
+        }
+        return text;
     }
 
     private void sendBack() {

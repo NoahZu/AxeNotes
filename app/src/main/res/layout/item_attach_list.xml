@@ -7,7 +7,7 @@
     android:paddingTop="10dp"
     >
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_centerInParent="true"
@@ -15,7 +15,8 @@
         android:paddingBottom="5dp">
         <TextView
             android:id="@+id/text_media_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="8"
             android:layout_height="wrap_content"
             android:text="5s"
             android:textSize="17sp"
@@ -24,7 +25,8 @@
             />
         <ImageView
             android:id="@+id/img_media_icon"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="2"
             android:layout_height="wrap_content"
             android:src="@mipmap/voice_icon"
             android:layout_marginLeft="10dp"/>

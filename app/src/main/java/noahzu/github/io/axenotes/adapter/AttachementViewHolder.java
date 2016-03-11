@@ -32,7 +32,7 @@ public class AttachementViewHolder extends RecyclerView.ViewHolder {
         }else {
             imgMediaIcon.setImageResource(R.mipmap.voice_icon);
         }
-        textMediaTitle.setText(axeMedia.getPath());
+        textMediaTitle.setText(axeMedia.getTitle());
     }
 
 }
