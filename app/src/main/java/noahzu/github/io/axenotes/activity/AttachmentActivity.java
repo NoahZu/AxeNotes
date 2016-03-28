@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -48,7 +49,11 @@ public class AttachmentActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private Toolbar toolbar;
     private AttachmentAdapter adapter;
+    private LinearLayout llProgressBar;
 
+    private boolean isPlaying = false;
+
+    private MediaPlayer mediaPlayer = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +63,7 @@ public class AttachmentActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        llProgressBar = (LinearLayout) findViewById(R.id.ll_playing_progress);
         recyclerView = (RecyclerView) findViewById(R.id.attachment_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new RecycleViewDivider(this, LinearLayoutManager.HORIZONTAL));
@@ -81,7 +87,7 @@ public class AttachmentActivity extends AppCompatActivity {
     }
 
     private void playSound(AxeMedia media) {
-        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(this,Uri.parse(media.path));
             mediaPlayer.prepareAsync();
@@ -90,12 +96,16 @@ public class AttachmentActivity extends AppCompatActivity {
                 public void onPrepared(MediaPlayer mp) {
                     Toast.makeText(AttachmentActivity.this, "播放开始", Toast.LENGTH_SHORT).show();
                     mp.start();
+                    isPlaying = true;
+                    llProgressBar.setVisibility(View.VISIBLE);
                 }
             });
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     Toast.makeText(AttachmentActivity.this, "播放结束", Toast.LENGTH_SHORT).show();
+                    llProgressBar.setVisibility(View.GONE);
+                    isPlaying = false;
                 }
             });
         } catch (IOException e) {
@@ -104,6 +114,9 @@ public class AttachmentActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 获取具体笔记
+     */
     private void loadAxeNote() {
         axeNote = (AxeNote) getIntent().getSerializableExtra(EditActivity.EDIT_NOTE);
         if (axeNote.medias == null){
@@ -161,7 +174,7 @@ public class AttachmentActivity extends AppCompatActivity {
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             Uri videoUri = intent.getData();
             String path = videoUri.toString();
-            String title = StringUtils.formatDate(new Date());
+            String title = StringUtils.formatDate(new Date(),"yyyy年MM月dd日hh点mm分ss秒");
             AxeMedia axeMedia = new AxeMedia(AxeMedia.TYPE_VIDEO,title,path);
             axeNote.medias.add(axeMedia);
             adapter.notifyDataSetChanged();
@@ -169,7 +182,7 @@ public class AttachmentActivity extends AppCompatActivity {
         if(requestCode == REQUEST_VOICE_CAPTURE && resultCode == RESULT_OK){
             Uri uri = intent.getData();
             String path = uri.toString();
-            String title = StringUtils.formatDate(new Date());
+            String title = StringUtils.formatDate(new Date(),"yyyy年MM月dd日hh点mm分ss秒");
             AxeMedia axeMedia = new AxeMedia(AxeMedia.TYPE_VOICE,title,path);
             axeNote.medias.add(axeMedia);
             adapter.notifyDataSetChanged();
@@ -185,11 +198,22 @@ public class AttachmentActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            Intent intent = new Intent();
-            intent.putExtra(SAVED_AXENOTE,axeNote);
-            setResult(RESULT_OK, intent);
-            finish();
-            Toast.makeText(getApplicationContext(),"附件已经保存",Toast.LENGTH_SHORT).show();
+            if(!isPlaying) {
+                Intent intent = new Intent();
+                intent.putExtra(SAVED_AXENOTE, axeNote);
+                setResult(RESULT_OK, intent);
+                finish();
+                Toast.makeText(getApplicationContext(), "附件已经保存", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this,"已经停止播放",Toast.LENGTH_SHORT).show();
+                isPlaying = false;
+                llProgressBar.setVisibility(View.GONE);
+                if(mediaPlayer != null){
+                    mediaPlayer.stop();
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                }
+            }
         }
         return false;
     }

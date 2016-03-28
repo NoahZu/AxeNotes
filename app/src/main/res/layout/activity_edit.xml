@@ -40,7 +40,8 @@
         android:layout_height="match_parent"
         android:layout_below="@id/edit_toolbar"
         android:layout_above="@id/edit_note_date"
-        android:background="@drawable/note_edit_back">
+        android:background="@drawable/note_edit_back"
+        android:fillViewport="true">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
