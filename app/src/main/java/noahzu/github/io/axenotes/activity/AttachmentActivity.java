@@ -1,6 +1,7 @@
 package noahzu.github.io.axenotes.activity;
 
-import android.app.AlertDialog;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -10,15 +11,13 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
@@ -50,6 +49,8 @@ public class AttachmentActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private AttachmentAdapter adapter;
     private LinearLayout llProgressBar;
+
+
 
     private boolean isPlaying = false;
 
@@ -85,6 +86,24 @@ public class AttachmentActivity extends AppCompatActivity {
             }
         });
     }
+
+
+//    class ControlRecordListener implements View.OnClickListener{
+//        @Override
+//        public void onClick(View v) {
+//            switch (v.getId()){
+//                case R.id.img_recorder_start:
+//                    //TODO 开始录音
+//                    //TODO 开始播放动画
+//                    break;
+//                case R.id.text_cancel_record:
+//                    //TODO 取消录音
+//                    //TODO 停止播放动画
+//                    break;
+//            }
+//        }
+//    }
+
 
     private void playSound(AxeMedia media) {
         mediaPlayer = new MediaPlayer();
@@ -159,7 +178,63 @@ public class AttachmentActivity extends AppCompatActivity {
     private void captureVoice() {
        Intent intent = new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
        startActivityForResult(intent,REQUEST_VOICE_CAPTURE);
+
+//        View contentView  = LayoutInflater.from(this).inflate(R.layout.layout_recorder_dialog,null);
+//        PopupWindow popupWindow = new PopupWindow(this);
+//        popupWindow.setContentView(contentView);
+//        final ImageView recordingAnimation = (ImageView) contentView.findViewById(R.id.img_record_animation);
+//        TextView startRecord = (TextView) contentView.findViewById(R.id.text_start_record);
+//        TextView cancelRecord = (TextView) contentView.findViewById(R.id.text_cancel_record);
+//        TextView closeRecordDia = (TextView) contentView.findViewById(R.id.text_close_record_dia);
+//        TextView saveRecord = (TextView) contentView.findViewById(R.id.text_save_record);
+//        startRecord.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //TODO start record
+//                startRecordAnimation(recordingAnimation);
+//            }
+//        });
+//        cancelRecord.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+//        closeRecordDia.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+//        saveRecord.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
+//
+//        View activityContentView = this.getWindow().getDecorView().findViewById(android.R.id.content);
+//        popupWindow.showAtLocation(activityContentView, Gravity.CENTER,0,0);
     }
+
+    private ObjectAnimator recorderAnimation = null;
+    /**
+     * 开始旋转动画
+     */
+    private void startRecordAnimation(ImageView recordingAnimation) {
+        if(recorderAnimation == null){
+            recorderAnimation = ObjectAnimator.ofFloat(recordingAnimation,"rotation",0f,360f);
+            recorderAnimation.setRepeatMode(ValueAnimator.RESTART);
+        }
+        recorderAnimation.start();
+    }
+    /**
+     * 结束旋转动画
+     */
+    private void stopRecordAnimation() {
+        recorderAnimation.pause();
+    }
+
 
     private void captureVideo() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
